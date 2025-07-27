@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card p-4 shadow-sm dark-mode-card">
+        <h2 class="text-center fw-bold mb-4">🌿 Edit Data Tanaman</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endwith %}
+
+        <form id="editForm" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="nama" class="form-label">🌱 Nama Tanaman</label>
+            <input id="nama" name="nama" class="form-control" placeholder="Contoh: Monstera" required
+                   value="{{ request.form.nama or tanaman.nama }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="jenis" class="form-label">🧬 Jenis</label>
+            <input id="jenis" name="jenis" class="form-control" placeholder="Contoh: Philodendron" required
+                   value="{{ request.form.jenis or tanaman.jenis }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="tags" class="form-label">🏷️ Tags (pisahkan dengan koma)</label>
+            <input id="tags" name="tags" class="form-control"
+                   placeholder="Contoh: indoor, low-light"
+                   value="{{ request.form.tags or tanaman.tags }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="lokasi_asal" class="form-label">📍 Lokasi Asal</label>
+            <input id="lokasi_asal" name="lokasi_asal" class="form-control" required
+                   value="{{ request.form.lokasi_asal or tanaman.lokasi_asal }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="cara_perawatan" class="form-label">🧼 Cara Perawatan</label>
+            <textarea id="cara_perawatan" name="cara_perawatan" class="form-control" rows="5" required>{{ request.form.cara_perawatan or tanaman.cara_perawatan }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="gambar" class="form-label">🖼️ Upload Gambar Baru (opsional)</label>
+            <input type="file" name="gambar" id="gambar" class="form-control" accept="image/*">
+            {% if tanaman.gambar %}
+              <div class="mt-2">
+                <small class="text-muted">Gambar saat ini:</small><br>
+                <img src="{{ url_for('static', filename=tanaman.gambar) }}"
+                     alt="Gambar tanaman" class="img-fluid rounded" style="max-height: 150px;">
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> Simpan Perubahan</button>
+            <a href="{{ url_for('view', id=tanaman.id) }}" class="btn btn-secondary w-100"><i class="fas fa-times"></i> Batal</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  const form = document.getElementById('editForm');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Simpan perubahan?',
+      text: 'Perubahan data tanaman akan disimpan.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, simpan',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+</script>
+{% endblock %}

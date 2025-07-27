@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center mb-4">📋 Dasbor Perawatan</h2>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="alert alert-{{ category }} mt-2 alert-dismissible fade show shadow-sm" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+  {% endfor %}
+{% endwith %}
+
+<!-- Statistik -->
+<div class="row mb-4 text-center">
+  <div class="col-md-4 mb-3">
+    <div class="card p-3 bg-light shadow-sm dark-mode-card">
+      <h6>Semua Tugas</h6>
+      <div class="fs-4 fw-bold">{{ total_tasks }}</div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card p-3 bg-light shadow-sm dark-mode-card">
+      <h6>Hari Ini</h6>
+      <div class="fs-4 fw-bold text-primary">{{ today_tasks }}</div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card p-3 bg-light shadow-sm dark-mode-card">
+      <h6>Terlambat</h6>
+      <div class="fs-4 fw-bold text-danger">{{ overdue_tasks }}</div>
+    </div>
+  </div>
+</div>
+
+{% if overdue_tasks > 0 %}
+<div class="alert alert-danger text-center shadow-sm" role="alert">
+  🚨 Anda memiliki <strong>{{ overdue_tasks }}</strong> tugas terlambat!
+</div>
+{% endif %}
+
+<!-- Filter dan Pencarian -->
+<form class="row g-2 mb-4" method="get">
+  <div class="col-md-5">
+    <input class="form-control" name="search" placeholder="Cari tanaman..." value="{{ search }}">
+  </div>
+  <div class="col-md-4">
+    <select class="form-select" name="filter">
+      <option value="" {{ 'selected' if filter_option=='' }}>Semua</option>
+      <option value="today" {{ 'selected' if filter_option=='today' }}>Hari ini</option>
+      <option value="3days" {{ 'selected' if filter_option=='3days' }}>3 hari ke depan</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <button class="btn btn-primary w-100" aria-label="Terapkan filter">
+      <i class="fas fa-filter"></i> Terapkan
+    </button>
+  </div>
+</form>
+
+<!-- Daftar Tugas -->
+<form id="bulk-form" action="{{ url_for('complete_jadwal', plant_id='bulk', jadwal_id='bulk') }}" method="post">
+  {% if tasks %}
+  <button class="btn btn-success mb-3" type="submit" aria-label="Selesaikan tugas terpilih">
+    <i class="fas fa-check-double"></i> Selesaikan Terpilih
+  </button>
+  {% endif %}
+
+  <div class="list-group shadow-sm">
+    {% for task in tasks %}
+      {% set delta = task.tanggal_berikutnya.date() - now.date() %}
+      {% set priority_class = 'bg-danger-subtle' if delta.days <= 0 else 'bg-warning-subtle' if delta.days <= 1 else '' %}
+      <div class="list-group-item d-flex align-items-center gap-3 {{ priority_class }} dark-mode-card flex-wrap">
+        <input class="form-check-input" type="checkbox" name="complete_ids" value="{{ task.plant_id }}|{{ task.id }}">
+        <img src="{{ url_for('static', filename=task.plant_gambar if task.plant_gambar else 'img/default.jpg') }}"
+            width="48" height="48" class="rounded-circle flex-shrink-0" alt="Gambar tanaman">
+        <div class="flex-grow-1">
+          <h6 class="mb-1">{{ task.plant_name }}</h6>
+          <small class="text-muted">Tugas: <strong>{{ task.aktivitas }}</strong></small>
+        </div>
+        <div class="text-end">
+          <small class="d-block mb-1 opacity-75">
+            {% if delta.days == 0 %}Hari ini
+            {% elif delta.days == 1 %}Besok
+            {% elif delta.days < 0 %}Terlambat {{ -delta.days }} hari
+            {% else %}Dalam {{ delta.days }} hari{% endif %}
+          </small>
+          <button class="btn btn-sm btn-success"
+                  formaction="{{ url_for('complete_jadwal', plant_id=task.plant_id, jadwal_id=task.id) }}"
+                  formmethod="post" aria-label="Selesaikan tugas ini">
+            <i class="fas fa-check"></i> Selesai
+          </button>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-center p-5">
+        <h4>🎉 Hore!</h4>
+        <p>Tidak ada jadwal perawatan saat ini.</p>
+      </div>
+    {% endfor %}
+  </div>
+</form>
+
+<!-- Timeline -->
+<h5 class="mt-5 mb-3">📅 Timeline 7 Hari ke Depan</h5>
+<div class="d-flex overflow-auto gap-3 pb-2">
+  {% for day in timeline_days %}
+  <div class="card p-3 text-center shadow-sm dark-mode-card" style="min-width: 100px;">
+    <strong>{{ day.date.strftime('%a %d') }}</strong>
+    <span class="text-muted">{{ day.tasks_count }} tugas</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

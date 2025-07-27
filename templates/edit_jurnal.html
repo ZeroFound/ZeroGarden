@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card p-4 shadow-sm dark-mode-card">
+
+        <h2 class="text-center fw-bold mb-4">📝 Edit Catatan Jurnal</h2>
+
+        <!-- Flash Message -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            </div>
+          {% endfor %}
+        {% endwith %}
+
+        <form id="editForm" method="POST">
+          <div class="mb-3">
+            <label for="catatan" class="form-label">✍️ Catatan</label>
+            <textarea id="catatan" name="catatan" class="form-control" rows="6" required>{{ catatan }}</textarea>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fas fa-save"></i> Simpan Perubahan
+            </button>
+            <a href="{{ url_for('view', id=plant_id) }}" class="btn btn-secondary w-100">
+              <i class="fas fa-times"></i> Batal
+            </a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  const form = document.getElementById('editForm');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Yakin ingin menyimpan perubahan?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, simpan',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2 class="display-5 fw-bold">Daftar Tanaman Hias Anda</h2>
+    <p class="lead text-muted">Jelajahi, kelola, dan saring koleksi tanaman Anda.</p>
+</div>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-lg-8">
+        <form method="get" class="input-group shadow-sm" role="search">
+            <label for="search" class="visually-hidden">Cari tanaman</label>
+            <input type="text" class="form-control" id="search" name="search"
+                   placeholder="Cari berdasarkan nama atau jenis..."
+                   value="{{ search }}">
+            <button type="submit" class="btn btn-success" aria-label="Cari">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+    <div class="col-lg-4 text-end mt-3 mt-lg-0">
+        <a href="{{ url_for('add') }}" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus"></i> Tambah Tanaman
+        </a>
+    </div>
+</div>
+
+<div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
+    <strong class="me-2">Filter Tag:</strong>
+    <a href="{{ url_for('index') }}"
+       class="badge rounded-pill {{ 'bg-success' if not active_tag else 'bg-secondary' }}"
+       aria-label="Tampilkan semua tanaman">Semua</a>
+    {% for tag in all_tags %}
+    <a href="{{ url_for('index', tag=tag) }}"
+       class="badge rounded-pill {{ 'bg-success' if tag == active_tag else 'bg-secondary' }}"
+       aria-label="Filter dengan tag {{ tag }}">{{ tag }}</a>
+    {% endfor %}
+</div>
+
+<div class="row">
+    {% for t in tanaman %}
+    <div class="col-sm-6 col-md-4 mb-4 plant-card">
+        <div class="card h-100 shadow-sm border-0 rounded-3">
+            <img src="{{ url_for('static', filename=t.gambar if t.gambar else 'img/default.jpg') }}"
+                 class="card-img-top img-fluid rounded-top"
+                 alt="{{ t.nama }}" loading="lazy">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">{{ t.nama }}</h5>
+                <p class="text-muted small mb-2"><span class="badge bg-light text-dark">{{ t.jenis }}</span></p>
+                <div class="mb-2">
+                    {% for tag in t.tags %}
+                    <span class="badge bg-info text-dark small">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <p class="card-text small flex-grow-1">{{ t.cara_perawatan | truncate(80) }}</p>
+                <a href="{{ url_for('view', id=t.id) }}" class="btn btn-success w-100 mt-2">Lihat Detail</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center mt-5">
+        <p class="lead">Tidak ada tanaman yang cocok dengan filter.
+            <a href="{{ url_for('add') }}">Tambahkan sekarang!</a>
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

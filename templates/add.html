@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card p-4 shadow-sm dark-mode-card">
+
+        <h2 class="text-center fw-bold mb-4">🌱 Tambah Tanaman Baru</h2>
+
+        <!-- Flash Message -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            </div>
+          {% endfor %}
+        {% endwith %}
+
+        <form id="addForm" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="nama" class="form-label">🌿 Nama Tanaman</label>
+            <input id="nama" name="nama" class="form-control" placeholder="Contoh: Monstera Deliciosa" required value="{{ request.form.nama or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="jenis" class="form-label">🪴 Jenis</label>
+            <input id="jenis" name="jenis" class="form-control" placeholder="Contoh: Philodendron" required value="{{ request.form.jenis or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="tags" class="form-label">🏷️ Tags <small class="text-muted">(pisahkan dengan koma)</small></label>
+            <input id="tags" name="tags" class="form-control" placeholder="Contoh: indoor, pemula, low-light" value="{{ request.form.tags or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="lokasi_asal" class="form-label">🌍 Lokasi Asal</label>
+            <input id="lokasi_asal" name="lokasi_asal" class="form-control" placeholder="Contoh: Hutan Tropis Amerika" required value="{{ request.form.lokasi_asal or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="cara_perawatan" class="form-label">🧴 Cara Perawatan</label>
+            <textarea id="cara_perawatan" name="cara_perawatan" class="form-control" rows="5" placeholder="Berikan sinar matahari tidak langsung, siram seminggu sekali..." required>{{ request.form.cara_perawatan or '' }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="gambar" class="form-label">📷 Upload Gambar</label>
+            <input type="file" name="gambar" id="gambar" class="form-control" accept="image/*">
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> Simpan</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary w-100"><i class="fas fa-times"></i> Batal</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  const form = document.getElementById('addForm');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Yakin ingin menyimpan?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, simpan',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+</script>
+{% endblock %}

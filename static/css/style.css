@@ -1,0 +1,217 @@
+/* 🌐 Font & Global Reset */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --light-bg: #fff;
+  --light-text: #333;
+  --dark-bg: #1e1e1e;
+  --dark-text: #e0e0e0;
+  --dark-card-bg: #2c2c2c;
+  --dark-border: #444;
+  --dark-table-odd-row: #262626;
+  --dark-table-hover: #333;
+  --dark-placeholder-text: #aaa;
+  --dark-alert-toast-bg: #343a40;
+  --dark-alert-toast-text: #f8f9fa;
+  --primary-color: #007bff;
+  --focus-shadow-color: rgba(0, 123, 255, 0.25);
+
+  /* Spacing */
+  --spacing-unit: 1rem; /* Base unit, can be scaled */
+  --padding-button-y: 0.6rem;
+  --padding-button-x: 1.2rem;
+  --margin-checkbox-radio: 0.5rem;
+
+  /* Font Sizes */
+  --font-size-base: 16px;
+  --font-size-h1: clamp(1.8rem, 4vw, 2.5rem);
+  --font-size-h2: clamp(1.5rem, 3.5vw, 2rem);
+  --font-size-h3: clamp(1.2rem, 3vw, 1.5rem);
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Border Radius */
+  --border-radius-sm: 0.25rem; /* Example, adjust as needed */
+  --border-radius-md: 0.5rem;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-page-fade: 0.6s ease-in-out;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: var(--font-size-base);
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  font-weight: var(--font-weight-regular);
+  background-color: var(--light-bg);
+  color: var(--light-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* 🌙 Dark Mode */
+body.dark-mode {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+body.dark-mode .navbar,
+body.dark-mode .dropdown-menu,
+body.dark-mode .card,
+body.dark-mode .modal-content,
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .dropdown-item,
+body.dark-mode .btn-outline-success,
+body.dark-mode textarea,
+body.dark-mode input,
+body.dark-mode select {
+  background-color: var(--dark-card-bg);
+  color: var(--dark-text); /* Removed !important */
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: var(--dark-placeholder-text);
+}
+
+body.dark-mode .alert,
+body.dark-mode .toast {
+  background-color: var(--dark-alert-toast-bg);
+  color: var(--dark-alert-toast-text);
+}
+
+body.dark-mode .table {
+  color: var(--dark-text);
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--dark-table-odd-row);
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+  background-color: var(--dark-table-hover);
+}
+
+/* 📱 Responsive & Mobile First */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.card,
+.btn,
+.form-control,
+.navbar,
+textarea,
+input,
+select {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.container,
+.container-fluid {
+  padding-left: var(--spacing-unit);
+  padding-right: var(--spacing-unit);
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Responsive Typography */
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-semibold);
+}
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+}
+h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ✍️ Form Elements */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.15rem var(--focus-shadow-color);
+  transition: box-shadow var(--transition-fast);
+}
+
+button, .btn {
+  transition: all var(--transition-normal);
+  padding: var(--padding-button-y) var(--padding-button-x);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-md);
+}
+
+/* 🖨️ Print Mode */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .navbar, .btn, .alert, .toast, .modal, footer, .no-print {
+    display: none !important;
+  }
+  main.container {
+    padding: 0;
+  }
+}
+
+/* 🎉 Page Fade-in Animation */
+main.container {
+  animation: fadeInPage var(--transition-page-fade);
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🧠 Accessibility & Usability */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  transform: scale(1.1);
+  margin-right: var(--margin-checkbox-radio);
+}

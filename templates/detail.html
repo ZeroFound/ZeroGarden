@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container mt-5">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mb-4">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="row">
+    <!-- Kolom Gambar & Tombol -->
+    <div class="col-md-5 mb-4">
+      <img src="{{ url_for('static', filename=tanaman.gambar if tanaman.gambar else 'img/default.jpg') }}"
+           class="img-fluid rounded shadow mb-3" alt="{{ tanaman.nama }}">
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('edit', id=tanaman.id) }}" class="btn btn-primary btn-sm">
+          <i class="fas fa-edit"></i> Edit
+        </a>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('{{ url_for('delete', id=tanaman.id) }}')">
+          <i class="fas fa-trash"></i> Hapus
+        </button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm ms-auto">
+          <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+      </div>
+    </div>
+
+    <!-- Kolom Detail -->
+    <div class="col-md-7">
+      <h2 class="fw-bold">{{ tanaman.nama }}</h2>
+      <p class="text-muted">{{ tanaman.jenis }}</p>
+
+      <!-- Tags -->
+      <div class="mb-3">
+        {% for tag in tanaman.tags %}
+        <span class="badge bg-info text-dark me-1">{{ tag }}</span>
+        {% endfor %}
+      </div>
+
+      <hr>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs" id="plantTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+            <i class="fas fa-seedling text-success"></i> Info
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="jadwal-tab" data-bs-toggle="tab" data-bs-target="#jadwal" type="button" role="tab">
+            <i class="fas fa-clock text-primary"></i> Jadwal
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="jurnal-tab" data-bs-toggle="tab" data-bs-target="#jurnal" type="button" role="tab">
+            <i class="fas fa-book text-warning"></i> Jurnal
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content border border-top-0 p-3 rounded-bottom dark-mode-card" id="plantTabContent">
+        <!-- Tab Info -->
+        <div class="tab-pane fade show active" id="info" role="tabpanel">
+          <h5 class="fw-bold mt-3"><i class="fas fa-map-marker-alt text-success"></i> Lokasi Asal</h5>
+          <p>{{ tanaman.lokasi_asal }}</p>
+
+          <h5 class="fw-bold mt-3"><i class="fas fa-leaf text-success"></i> Cara Perawatan</h5>
+          <p style="white-space: pre-wrap;">{{ tanaman.cara_perawatan }}</p>
+        </div>
+
+        <!-- Tab Jadwal -->
+        <div class="tab-pane fade" id="jadwal" role="tabpanel">
+          <h5 class="fw-bold mt-3">Jadwal Perawatan</h5>
+
+          {% if jadwal %}
+          <ul class="list-group mb-3">
+            {% for j in jadwal %}
+            <li class="list-group-item d-flex justify-content-between align-items-center dark-mode-card">
+              <div>
+                <strong>{{ j.aktivitas }}</strong> (setiap {{ j.frekuensi }} hari)<br>
+                <small class="text-muted">Jadwal berikutnya: {{ j.tanggal_berikutnya.strftime('%d %B %Y') }}</small>
+              </div>
+              <div class="d-flex gap-2">
+                <form action="{{ url_for('complete_jadwal', plant_id=tanaman.id, jadwal_id=j.id) }}" method="post">
+                  <button class="btn btn-sm btn-success" title="Tandai Selesai" aria-label="Selesaikan Jadwal"><i class="fas fa-check"></i></button>
+                </form>
+                <button class="btn btn-sm btn-danger" title="Hapus Jadwal"
+                        onclick="confirmDelete('{{ url_for('delete_jadwal', plant_id=tanaman.id, jadwal_id=j.id) }}')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="alert alert-info">Belum ada jadwal.</div>
+          {% endif %}
+
+          <hr>
+          <h6 class="fw-bold">Tambah Jadwal Baru</h6>
+          <form action="{{ url_for('add_jadwal', plant_id=tanaman.id) }}" method="post" class="row g-2 align-items-center mt-2">
+            <div class="col-md-5">
+              <input type="text" name="aktivitas" class="form-control" placeholder="Aktivitas (misal: Siram)" required>
+            </div>
+            <div class="col-md-4">
+              <input type="number" name="frekuensi" class="form-control" placeholder="Frekuensi (hari)" required>
+            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-primary w-100">Tambah</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tab Jurnal -->
+        <div class="tab-pane fade" id="jurnal" role="tabpanel">
+          <h5 class="fw-bold mt-3">Jurnal Pertumbuhan</h5>
+
+          {% if jurnal %}
+          {% for entry in jurnal %}
+          <div class="card mb-3 shadow-sm dark-mode-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="fw-bold mb-1">{{ entry.tanggal.strftime('%d %B %Y, %H:%M') }}</p>
+                  <p class="mb-2">{{ entry.catatan }}</p>
+                </div>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('edit_jurnal', plant_id=tanaman.id, jurnal_id=entry.id) }}"
+                     class="btn btn-sm btn-outline-primary" title="Edit Jurnal">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button class="btn btn-sm btn-outline-danger" title="Hapus Jurnal"
+                          onclick="confirmDelete('{{ url_for('delete_jurnal', plant_id=tanaman.id, jurnal_id=entry.id) }}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="alert alert-info">Belum ada catatan jurnal.</div>
+          {% endif %}
+
+          <hr>
+          <h6 class="fw-bold">Tambah Catatan Jurnal</h6>
+          <form action="{{ url_for('add_jurnal', plant_id=tanaman.id) }}" method="post">
+            <textarea name="catatan" class="form-control mb-2" placeholder="Catatan hari ini..." required></textarea>
+            <button type="submit" class="btn btn-primary w-100">Simpan Catatan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmDelete(actionUrl) {
+    Swal.fire({
+      title: 'Yakin ingin menghapus?',
+      text: 'Data ini tidak bisa dikembalikan.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = actionUrl;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>
+{% endblock %}
